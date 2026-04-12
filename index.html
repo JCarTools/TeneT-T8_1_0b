@@ -53,6 +53,30 @@
     <div class="wallpaper-item" data-src="images/Bg-13.jpg"><img src="images/Bg-13.jpg" alt=""></div>
     <div class="wallpaper-item" data-src="images/Bg-14.jpg"><img src="images/Bg-14.jpg" alt=""></div>
   </div>
+  <div class="custom-wallpaper-section">
+    <label for="customImageInput" class="custom-wallpaper-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4-3h2v13h-2z"/>
+      </svg>
+      Загрузить своё фото
+    </label>
+    <input type="file" id="customImageInput" accept="image/*" style="display:none;">
+    
+    <label for="customVideoInput" class="custom-wallpaper-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4 6h16v12H4zM10 9l5 3-5 3V9z"/>
+      </svg>
+      Загрузить живое видео
+    </label>
+    <input type="file" id="customVideoInput" accept="video/mp4,video/webm" style="display:none;">
+
+    <div class="custom-wallpaper-btn" id="presetVideoKamin">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4 6h16v12H4zM10 9l5 3-5 3V9z"/>
+      </svg>
+      Камин HD
+    </div>
+  </div>
 </div>
 
 <!-- Основная панель -->
@@ -140,6 +164,9 @@
 <div id="global-loader" class="global-loader hidden">
   <div class="spinner"></div>
 </div>
+
+<!-- Видеофон -->
+<video id="video-background" muted loop playsinline></video>
 
 <script src="app.js"></script>
 </body>
