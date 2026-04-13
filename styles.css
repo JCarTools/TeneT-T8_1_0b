@@ -228,6 +228,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .widget_player__right {
   flex: 1; display: flex; flex-direction: column;
   justify-content: space-between; min-width: 0;
+  position: relative;
 }
 .widget_player__titles { margin-bottom: 0.3rem; }
 .widget_player__title { font-size: 1.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -236,10 +237,12 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .widget_player__track_line {
   position: relative; height: 0.4rem; background: rgba(65, 71, 90, 0.7);
   flex: 1; margin-right: 1rem; border-radius: 0.4rem;
+  max-width: calc(100% - 5rem); /* ограничение ширины с отступом ~5мм (примерно 5rem) */
 }
 .widget_player__track_progress {
   position: absolute; left: 0; top: 0; height: 100%;
   background: #D9D9D9; border-radius: 0.4rem;
+  max-width: 100%;
 }
 .widget_player__track_dot {
   position: absolute; right: -0.3rem; top: -0.3rem;

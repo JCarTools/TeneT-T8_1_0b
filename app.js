@@ -1,7 +1,8 @@
 ﻿/**********************************************
  * My Black Window - Dashboard
- * Версия 3.9.4
- * - Убран preventDefault при старте нажатия в климатических слотах
+ * Версия 3.9.6
+ * - Ограничена ширина полосы прогресса плеера
+ * - Исправлена блокировка коротких нажатий в климате
  **********************************************/
 
 const TOKEN = window.ANDROID_TOKEN || "SECURE_TOKEN_2025";
@@ -534,9 +535,18 @@ const App = (function() {
       if (artistEl) artistEl.textContent = data.SongArtist || "";
       if (imgEl && data.SongAlbumPicture) imgEl.src = "data:image/png;base64," + data.SongAlbumPicture;
       const pos = parseFloat(data.Trpos||0), dur = parseFloat(data.Trdur||1);
-      if (progressEl) progressEl.style.width = (pos/dur*100)+"%";
+      // Ограничение максимальной ширины через CSS уже установлено (max-width: calc(100% - 5rem))
+      // но на всякий случай также ограничим проценты, если dur бесконечность или очень большое
+      let percent = (pos / dur) * 100;
+      if (dur === Infinity || dur > 86400000) { // если длительность > 24 часов или бесконечность
+        percent = 0; // не показываем прогресс
+      }
+      if (progressEl) progressEl.style.width = Math.min(percent, 100) + "%";
       const format = t => { const m = Math.floor(t/60000), s = Math.floor((t%60000)/1000); return m+":"+String(s).padStart(2,'0'); };
-      if (timeSpans.length >= 2) { timeSpans[0].textContent = format(pos); timeSpans[1].textContent = format(dur); }
+      if (timeSpans.length >= 2) {
+        timeSpans[0].textContent = format(pos);
+        timeSpans[1].textContent = (dur === Infinity || dur > 86400000) ? "∞" : format(dur);
+      }
       const playing = data.IsPlaying === true;
       if (playBtn) playBtn.style.display = playing ? "none" : "flex";
       if (pauseBtn) pauseBtn.style.display = playing ? "flex" : "none";
@@ -551,7 +561,7 @@ const App = (function() {
     return { updateMusicInfo, init };
   })();
 
-  // --- Климат (без preventDefault при старте) ---
+  // --- Климат (без preventDefault при старте, убрана проверка e.detail) ---
   modules.climate = (function() {
     let climateCommands = [], climateState = {};
     const fallback = [
@@ -615,7 +625,7 @@ const App = (function() {
         const id=s.dataset.climateSlot;
         makeLongPressable(s,()=>open(id),{delay:700, preventDefaultOnStart: false});
         s.addEventListener('click',e=>{
-          if(e.detail===0) return;
+          // проверка убрана для корректной работы коротких нажатий
           const saved=storage.load(`climate_slot_${id}`); if(!saved){ open(id); return; }
           const c=climateCommands.find(x=>x.cmd===saved); if(!c) return;
           const max=c.max||1, curLvl=climateState[saved]||0, next=(curLvl+1)%(max+1);
