@@ -1,4 +1,4 @@
-/* === ������ === */
+/* === ШРИФТЫ === */
 @font-face {
   font-family: 'MyComicSans';
   src: url('fonts/ComicSansMS.ttf') format('truetype');
@@ -10,7 +10,7 @@
   font-weight: normal; font-style: normal;
 }
 
-/* === ���������� === */
+/* === ПЕРЕМЕННЫЕ === */
 :root {
   --base-font-size: 18px;
   --widget-size: 13.5rem;
@@ -38,13 +38,31 @@ body {
   background-size: cover;
   background-position: center;
   color: var(--color-text);
-  transition: background-image .5s ease, background-color .5s;
+  transition: background-color 0.8s ease;
   height: 100vh;
   position: relative;
 }
 body.light { background: #DFE0E9; color: #1C1119; }
 
-/* === ���������� ������ === */
+/* Затемнение фона — overlay поверх обоев */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 3.12s ease;
+  z-index: 5;
+}
+body.off-mode::before {
+  opacity: 0.9;
+}
+
+/* === ГЛОБАЛЬНЫЙ ЛОАДЕР === */
 .global-loader {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -66,7 +84,7 @@ body.light { background: #DFE0E9; color: #1C1119; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* === ������������� �������� === */
+/* === ФИКСИРОВАННЫЕ ЭЛЕМЕНТЫ === */
 #btnNetwork {
   position: fixed; top: 1rem; right: 1rem;
   width: 3rem; height: 3rem;
@@ -77,6 +95,11 @@ body.light { background: #DFE0E9; color: #1C1119; }
   z-index: 500;
   cursor: grab;
   touch-action: none; user-select: none;
+  transition: opacity 1.04s ease;
+}
+body.off-mode #btnNetwork {
+  opacity: 0;
+  pointer-events: none;
 }
 #btnNetwork:active { cursor: grabbing; }
 .network-svg { width: 2rem; height: 2rem; pointer-events: none; }
@@ -89,6 +112,11 @@ body.light { background: #DFE0E9; color: #1C1119; }
   border-radius: 0.8rem;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; z-index: 600;
+  transition: opacity 1.04s ease;
+}
+body.off-mode #btnClose {
+  opacity: 0;
+  pointer-events: none;
 }
 #btnClose svg { width: 0.8rem; height: 0.8rem; }
 #btnClose:hover { background: rgba(58, 54, 64, 0.9); }
@@ -102,11 +130,15 @@ body.light { background: #DFE0E9; color: #1C1119; }
   z-index: 400;
   cursor: pointer;
   user-select: none;
-  transition: color 0.2s;
+  transition: opacity 1.04s ease;
+}
+body.off-mode .brand-footer {
+  opacity: 0;
+  pointer-events: none;
 }
 .brand-footer:active { color: rgba(255, 255, 255, 0.5); }
 
-/* === �������� ������ === */
+/* === ОСНОВНАЯ ПАНЕЛЬ === */
 .dashboard {
   position: absolute;
   bottom: var(--dashboard-bottom);
@@ -117,7 +149,7 @@ body.light { background: #DFE0E9; color: #1C1119; }
   transition: all 0.5s;
 }
 
-/* === ����� ����� �������� === */
+/* === ОБЩИЙ СТИЛЬ ВИДЖЕТОВ === */
 .widget {
   background: var(--bg-widget);
   backdrop-filter: blur(10px);
@@ -129,7 +161,7 @@ body.light { background: #DFE0E9; color: #1C1119; }
 }
 body.light .widget { background: rgba(211, 212, 221, 0.7); }
 
-/* === ������ (2x2) === */
+/* === КЛИМАТ (2x2) === */
 .widget_climate {
   width: var(--widget-size);
   position: relative;
@@ -160,7 +192,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .climate-dot { width: 0.3rem; height: 0.3rem; border-radius: 50%; background: rgba(255,255,255,0.3); }
 .climate-dot.on { background: white; box-shadow: 0 0 3px white; }
 
-/* ������ ���������� ����� ������� */
+/* Кнопка выключения всего климата */
 .climate-off-all {
   position: absolute;
   top: 50%; left: 50%;
@@ -185,12 +217,13 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
   background: rgba(58, 54, 64, 0.9);
 }
 
-/* === ����� (FLIP) === */
+/* === ВРЕМЯ (FLIP) === */
 .widget_time {
   width: var(--widget-size);
   display: flex; flex-direction: column; justify-content: center;
   text-align: center;
   z-index: 20;
+  cursor: pointer;
 }
 .flip-clock { display: flex; justify-content: center; align-items: center; gap: 0.15rem; font-family: 'FlipClock', monospace; }
 .flip-digit {
@@ -212,7 +245,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .flip-separator { font-size: 2.8rem; color: #aaa; margin: 0 0.1rem; font-family: 'FlipClock', monospace; }
 .widget_time__date, .widget_time__weekday { margin-top: 0.2rem; font-size: 1rem; opacity: 0.9; }
 
-/* === ����� === */
+/* === ПЛЕЕР === */
 .widget_player {
   flex: 1 1 auto;
   display: flex; gap: 1rem;
@@ -228,7 +261,6 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .widget_player__right {
   flex: 1; display: flex; flex-direction: column;
   justify-content: space-between; min-width: 0;
-  position: relative;
 }
 .widget_player__titles { margin-bottom: 0.3rem; }
 .widget_player__title { font-size: 1.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -237,7 +269,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .widget_player__track_line {
   position: relative; height: 0.4rem; background: rgba(65, 71, 90, 0.7);
   flex: 1; margin-right: 1rem; border-radius: 0.4rem;
-  max-width: calc(100% - 5rem); /* ����������� ������ � �������� ~5�� (�������� 5rem) */
+  max-width: calc(100% - 5rem);
 }
 .widget_player__track_progress {
   position: absolute; left: 0; top: 0; height: 100%;
@@ -266,7 +298,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
   width: 1.4rem; height: 1.4rem; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
 }
 
-/* === ���������� (2x2) === */
+/* === ПРИЛОЖЕНИЯ (2x2) === */
 .widget_apps {
   width: var(--widget-size);
   display: grid;
@@ -282,7 +314,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .app_slot:hover { background: rgba(58, 54, 64, 0.9); }
 .app_slot img { width: 2.5rem; height: 2.5rem; }
 
-/* === ������ ������ === */
+/* === ПРАВЫЕ КНОПКИ === */
 .right-buttons {
   display: flex; flex-direction: column; gap: var(--widget-gap);
   height: var(--widget-size);
@@ -300,7 +332,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .widget_buttons:hover { background: rgba(58, 54, 64, 0.9); }
 #btnWallpaper.active { background: rgba(138, 43, 226, 0.35) !important; box-shadow: 0 0 8px rgba(138, 43, 226, 0.3); }
 
-/* === ������ � ������� === */
+/* === ШТОРКИ И МОДАЛКИ === */
 .picker-drawer {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: #1a1c24;
@@ -372,7 +404,7 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .picker-item img { width: 3rem; height: 3rem; }
 .picker-item span { font-size: 0.8rem; text-align: center; }
 
-/* === ������� ����� === */
+/* === САЙДБАР ОБОЕВ === */
 .sidebar {
   position: fixed; right: 0; top: 0; width: 300px; height: 100%;
   background: #333; color: white; transition: transform 0.3s;
@@ -385,52 +417,242 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 
 .hidden { display: none; }
 
-/* === OFF-����� === */
-body.off-mode .dashboard { bottom: var(--dashboard-bottom); left: 2rem; right: 2rem; }
-body.off-mode .widget_climate { animation: slideLeft 3s ease-out forwards; }
-body.off-mode .widget_apps { animation: slideRight 3s ease-out forwards; }
-body.off-mode .right-buttons { animation: slideRight 3s ease-out 0.2s forwards; }
-body.off-mode .widget_player { animation: slideLeft 3s ease-out 0.4s forwards; flex: 3 1 auto; }
-@keyframes slideLeft { 0% { opacity: 0; transform: translateX(-100px); } 100% { opacity: 1; transform: translateX(0); } }
-@keyframes slideRight { 0% { opacity: 0; transform: translateX(100px); } 100% { opacity: 1; transform: translateX(0); } }
+/* === OFF-РЕЖИМ (ЗАМЕДЛЕННЫЕ АНИМАЦИИ) === */
 
+/* Виджеты въезжают на черный экран */
+body.off-mode .widget_climate {
+  animation: slideInFromLeft 3.12s ease-out forwards;
+  opacity: 1;
+  pointer-events: none;
+}
+
+body.off-mode .widget_apps {
+  animation: slideInFromRight 3.12s ease-out forwards;
+  opacity: 1;
+  pointer-events: none;
+}
+
+body.off-mode .right-buttons {
+  animation: slideInFromRight 3.12s ease-out 0.39s forwards;
+  opacity: 1;
+  pointer-events: none;
+}
+
+body.off-mode .widget_player {
+  animation: slideInFromLeft 3.12s ease-out 0.78s forwards;
+  opacity: 1;
+  pointer-events: none;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-150px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(150px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Часы — поднимаются от своего обычного места (восход луны) */
 body.off-mode .widget_time {
   position: fixed;
-  top: 50%;
+  top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: auto; height: auto; background: transparent !important;
-  backdrop-filter: none; box-shadow: none; padding: 0;
+  width: auto;
+  height: auto;
+  background: transparent !important;
+  backdrop-filter: none;
+  box-shadow: none;
+  padding: 0;
   z-index: 100;
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: moonRise 3.12s ease-out forwards;
 }
-body.off-mode .flip-clock { gap: clamp(0.2rem, 1vw, 0.5rem); }
+
+@keyframes moonRise {
+  0% {
+    top: calc(100% - var(--dashboard-bottom) - var(--widget-size) / 2);
+    left: calc(2rem + var(--widget-size) / 2);
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  40% {
+    opacity: 0.8;
+    filter: blur(3px);
+  }
+  100% {
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* Цифры часов в off-режиме */
+body.off-mode .flip-clock {
+  gap: clamp(0.2rem, 1vw, 0.5rem);
+}
+
 body.off-mode .flip-digit {
-  background: rgba(20, 20, 30, 0.4); color: rgba(200, 200, 200, 0.5);
+  background: rgba(20, 20, 30, 0.4);
+  color: rgba(220, 220, 220, 0.7);
   font-size: clamp(4rem, 12vw, 15rem);
   padding: clamp(0.2rem, 0.5vw, 0.5rem);
   border-radius: 1rem;
   box-shadow: inset 0 -0.3rem 0 rgba(0,0,0,0.3), inset 0 0.3rem 0 rgba(255,255,255,0.05), 0 0.3rem 0.6rem rgba(0,0,0,0.2);
-  text-shadow: 0 0 15px rgba(200,200,200,0.3);
+  text-shadow: 0 0 25px rgba(200,200,200,0.4);
   min-width: auto;
   backdrop-filter: blur(2px);
+  transition: all 0.5s ease;
 }
-body.off-mode .flip-digit::after { height: 3px; background: rgba(0,0,0,0.5); box-shadow: 0 0 8px rgba(0,0,0,0.7); }
-body.off-mode .flip-separator { font-size: clamp(4rem, 12vw, 15rem); color: rgba(200,200,200,0.4); }
-body.off-mode .widget_time__date, body.off-mode .widget_time__weekday { display: none; }
-body.off-mode .widget_time.glowing .flip-digit { animation: timeGlow 2s infinite alternate; }
-@keyframes timeGlow { from { text-shadow: 0 0 10px rgba(200,200,200,0.2); } to { text-shadow: 0 0 25px rgba(200,200,200,0.5); } }
 
+body.off-mode .flip-digit::after {
+  height: 3px;
+  background: rgba(0,0,0,0.5);
+  box-shadow: 0 0 8px rgba(0,0,0,0.7);
+}
+
+body.off-mode .flip-separator {
+  font-size: clamp(4rem, 12vw, 15rem);
+  color: rgba(200,200,200,0.5);
+}
+
+body.off-mode .widget_time__date,
+body.off-mode .widget_time__weekday {
+  display: none;
+}
+
+/* Свечение часов (glowing) */
+body.off-mode .widget_time.glowing .flip-digit {
+  animation: timeGlow 3s infinite alternate;
+}
+
+@keyframes timeGlow {
+  from {
+    text-shadow: 0 0 15px rgba(200,200,200,0.3);
+    box-shadow: inset 0 -0.3rem 0 rgba(0,0,0,0.3), inset 0 0.3rem 0 rgba(255,255,255,0.05), 0 0.3rem 0.6rem rgba(0,0,0,0.2);
+  }
+  to {
+    text-shadow: 0 0 40px rgba(255,255,200,0.6);
+    box-shadow: inset 0 -0.3rem 0 rgba(0,0,0,0.3), inset 0 0.3rem 0 rgba(255,255,255,0.1), 0 0 8px rgba(255,255,200,0.3);
+  }
+}
+
+/* Обратный переход — виджеты плавно возвращаются */
+body:not(.off-mode) .widget_climate,
+body:not(.off-mode) .widget_apps,
+body:not(.off-mode) .right-buttons,
+body:not(.off-mode) .widget_player {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 1.04s ease, transform 1.04s ease;
+  animation: none;
+}
+
+/* Часы — плавно уходят в слот (заход луны) с появлением фона слота */
 body:not(.off-mode) .widget_time {
-  position: relative; top: auto; left: auto; transform: none;
-  width: var(--widget-size); height: var(--widget-size);
-  background: var(--bg-widget); backdrop-filter: blur(10px);
-  border-radius: 1.5rem; padding: 0.8rem;
+  animation: moonSet 3.12s ease-out forwards;
+  pointer-events: auto;
+  cursor: pointer;
 }
-body:not(.off-mode) .flip-digit { font-size: 2.8rem; background: #1a1c24; color: #e0e0e0; }
-body:not(.off-mode) .flip-separator { font-size: 2.8rem; }
-body:not(.off-mode) .widget_time__date, body:not(.off-mode) .widget_time__weekday { display: block; }
 
-/* === RIPPLE ������ ��� �������� ������� === */
+@keyframes moonSet {
+  0% {
+    position: fixed;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    width: auto;
+    height: auto;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 0;
+    opacity: 1;
+    filter: blur(0);
+  }
+  50% {
+    position: fixed;
+    top: calc(100% - var(--dashboard-bottom) - var(--widget-size) / 2);
+    left: calc(2rem + var(--widget-size) / 2);
+    transform: translate(-50%, -50%) scale(0.8);
+    width: auto;
+    height: auto;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 0;
+    opacity: 0.5;
+    filter: blur(4px);
+  }
+  100% {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: var(--widget-size);
+    height: var(--widget-size);
+    background: var(--bg-widget);
+    backdrop-filter: blur(10px);
+    border-radius: 1.5rem;
+    padding: 0.8rem;
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* После завершения анимации — слот остаётся видимым */
+body:not(.off-mode) .widget_time {
+  position: relative;
+  width: var(--widget-size);
+  height: var(--widget-size);
+  background: var(--bg-widget);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 0.8rem;
+}
+
+/* Цифры возвращаются к обычному размеру */
+body:not(.off-mode) .flip-digit {
+  font-size: 2.8rem;
+  background: #1a1c24;
+  color: #e0e0e0;
+}
+
+body:not(.off-mode) .flip-separator {
+  font-size: 2.8rem;
+}
+
+body:not(.off-mode) .widget_time__date,
+body:not(.off-mode) .widget_time__weekday {
+  display: block;
+}
+
+/* Плавное исчезновение затемнения при возврате */
+body:not(.off-mode)::before {
+  opacity: 0;
+  transition: opacity 3.12s ease;
+}
+
+/* === RIPPLE ЭФФЕКТ ДЛЯ ДЛИННОГО НАЖАТИЯ === */
 .ripple {
   position: absolute;
   border-radius: 50%;
@@ -443,7 +665,7 @@ body:not(.off-mode) .widget_time__date, body:not(.off-mode) .widget_time__weekda
   to { transform: scale(4); opacity: 0; }
 }
 
-/* === ��������� ���� � �������� === */
+/* === КАСТОМНЫЕ ОБОИ В САЙДБАРЕ === */
 .custom-wallpaper-section {
   margin-top: 20px;
   padding-top: 15px;
@@ -476,7 +698,7 @@ body:not(.off-mode) .widget_time__date, body:not(.off-mode) .widget_time__weekda
   fill: white;
 }
 
-/* ��������� ��� ��������� */
+/* Контейнер для видеофона */
 #video-background {
   position: fixed;
   top: 0; left: 0;
@@ -492,5 +714,5 @@ body.has-video-background #video-background {
 }
 
 body.has-video-background {
-  background: black; /* fallback */
+  background: black;
 }

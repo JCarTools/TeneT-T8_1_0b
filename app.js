@@ -1,8 +1,7 @@
 /**********************************************
  * My Black Window - Dashboard
- * Версия 3.9.8
- * - Исправлены кнопки загрузки своих обоев и живых обоев
- * - Добавлена принудительная активация input через click
+ * Версия 3.9.9
+ * - Убраны кнопки загрузки своих фото и видео
  **********************************************/
 
 const TOKEN = window.ANDROID_TOKEN || "SECURE_TOKEN_2025";
@@ -10,7 +9,7 @@ const TOKEN = window.ANDROID_TOKEN || "SECURE_TOKEN_2025";
 const App = (function() {
   "use strict";
 
-  const DEBUG = true; // Временно включим для отладки
+  const DEBUG = false;
   const log = (...args) => DEBUG && console.log("[App]", ...args);
   const warn = (...args) => console.warn("[App]", ...args);
   const error = (...args) => console.error("[App]", ...args);
@@ -242,20 +241,6 @@ const App = (function() {
       storage.save('wallpaperVideo', url);
     }
 
-    function setCustomImage(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64 = e.target.result;
-        clearVideoBackground();
-        document.body.style.backgroundImage = `url("${base64}")`;
-        document.body.classList.remove('off-mode', 'has-video-background');
-        storage.save('wallpaperMode', 'custom');
-        storage.save('wallpaperCustom', base64);
-        storage.save('customWallpaperIndex', -1);
-      };
-      reader.readAsDataURL(file);
-    }
-
     async function setAuto(showLoader = true) {
       clearVideoBackground();
       const w = window.innerWidth, h = window.innerHeight;
@@ -392,7 +377,7 @@ const App = (function() {
     return { 
       setOff, setAuto, setCustomByIndex, nextCustom, restore, 
       toggleOffMode, toggleAutoMode, initAutoMode,
-      setCustomImage, setVideoBackground
+      setVideoBackground
     };
   })();
 
@@ -729,45 +714,6 @@ const App = (function() {
         sidebar.classList.remove("open");
       });
     });
-
-    // Исправление для кнопок загрузки своих обоев
-    const customImageLabel = document.querySelector('label[for="customImageInput"]');
-    const customImageInput = document.getElementById('customImageInput');
-    if (customImageLabel && customImageInput) {
-      customImageLabel.addEventListener('click', (e) => {
-        e.preventDefault();
-        log('Opening file picker for image');
-        customImageInput.click();
-      });
-      customImageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          log('Image file selected:', file.name);
-          modules.wallpaper.setCustomImage(file);
-          sidebar.classList.remove('open');
-        }
-        e.target.value = '';
-      });
-    }
-
-    const customVideoLabel = document.querySelector('label[for="customVideoInput"]');
-    const customVideoInput = document.getElementById('customVideoInput');
-    if (customVideoLabel && customVideoInput) {
-      customVideoLabel.addEventListener('click', (e) => {
-        e.preventDefault();
-        log('Opening file picker for video');
-        customVideoInput.click();
-      });
-      customVideoInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          log('Video file selected:', file.name);
-          modules.wallpaper.setVideoBackground(file);
-          sidebar.classList.remove('open');
-        }
-        e.target.value = '';
-      });
-    }
 
     document.getElementById('presetVideoKamin')?.addEventListener('click', () => {
       modules.wallpaper.setVideoBackground('images/kamin HD.mp4');
