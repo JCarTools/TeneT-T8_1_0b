@@ -14,8 +14,9 @@
 :root {
   --base-font-size: 18px;
   --widget-size: 13.5rem;
-  --widget-gap: 0.75rem;
+  --widget-gap: 0.375rem;
   --dashboard-bottom: 2.5rem;
+  --dashboard-left-right: 1rem;
   --bg-widget: rgba(29, 27, 32, 0.7);
   --bg-slot: rgba(42, 39, 48, 0.7);
   --color-text: #D9D9D9;
@@ -44,7 +45,6 @@ body {
 }
 body.light { background: #DFE0E9; color: #1C1119; }
 
-/* Затемнение фона — overlay поверх обоев */
 body::before {
   content: '';
   position: fixed;
@@ -142,8 +142,10 @@ body.off-mode .brand-footer {
 .dashboard {
   position: absolute;
   bottom: var(--dashboard-bottom);
-  left: 2rem; right: 2rem;
-  display: flex; gap: var(--widget-gap);
+  left: var(--dashboard-left-right);
+  right: var(--dashboard-left-right);
+  display: flex;
+  gap: var(--widget-gap);
   align-items: stretch;
   z-index: 10;
   transition: all 0.5s;
@@ -161,16 +163,15 @@ body.off-mode .brand-footer {
 }
 body.light .widget { background: rgba(211, 212, 221, 0.7); }
 
-/* === КЛИМАТ (2x2) === */
-.widget_climate {
-  width: var(--widget-size);
+/* === КЛИМАТ (2x3) === */
+.widget_climate_2x3 {
+  width: calc(var(--widget-size) * 1.5 + var(--widget-gap));
   position: relative;
-  padding: 0.6rem;
 }
-.climate-grid {
+.climate-grid_2x3 {
   display: grid;
-  grid-template: repeat(2, 1fr) / repeat(2, 1fr);
-  gap: 0.5rem;
+  grid-template: repeat(2, 1fr) / repeat(3, 1fr);
+  gap: 0.375rem;
   height: 100%;
 }
 .climate_slot {
@@ -192,12 +193,13 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 .climate-dot { width: 0.3rem; height: 0.3rem; border-radius: 50%; background: rgba(255,255,255,0.3); }
 .climate-dot.on { background: white; box-shadow: 0 0 3px white; }
 
-/* Кнопка выключения всего климата */
 .climate-off-all {
   position: absolute;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 33.33%;
   transform: translate(-50%, -50%);
-  width: 2rem; height: 2rem;
+  width: 2rem;
+  height: 2rem;
   background: rgba(42, 39, 48, 0.7);
   backdrop-filter: blur(8px);
   border-radius: 0.8rem;
@@ -248,27 +250,36 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 /* === ПЛЕЕР === */
 .widget_player {
   flex: 1 1 auto;
-  display: flex; gap: 1rem;
-  padding: 0.8rem 1rem;
+  display: flex; gap: 0.8rem;
+  padding: 0.8rem 0.8rem;
   min-width: 0;
 }
 .widget_player__image {
-  width: 7rem; height: 7rem;
+  width: 6.5rem; height: 6.5rem;
   border-radius: 1rem; overflow: hidden;
   align-self: center; flex-shrink: 0;
 }
 .widget_player__image img { width: 100%; height: 100%; object-fit: cover; }
 .widget_player__right {
   flex: 1; display: flex; flex-direction: column;
-  justify-content: space-between; min-width: 0;
+  justify-content: center;
+  min-width: 0;
+  gap: 0.3rem;
 }
-.widget_player__titles { margin-bottom: 0.3rem; }
-.widget_player__title { font-size: 1.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.widget_player__artist { font-size: 1rem; color: #AFB5B7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.widget_player__track_row { display: flex; align-items: center; margin: 0.4rem 0; }
+.widget_player__titles {
+  min-width: 0;
+}
+.widget_player__title { font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.widget_player__artist { font-size: 0.9rem; color: #AFB5B7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.widget_player__track_row {
+  display: flex;
+  align-items: center;
+  margin: 0.2rem 0;
+}
 .widget_player__track_line {
   position: relative; height: 0.4rem; background: rgba(65, 71, 90, 0.7);
-  flex: 1; margin-right: 1rem; border-radius: 0.4rem;
+  flex: 1; margin-right: 0.8rem; border-radius: 0.4rem;
   max-width: calc(100% - 5rem);
 }
 .widget_player__track_progress {
@@ -281,10 +292,20 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
   width: 1rem; height: 1rem; border-radius: 50%;
   background: #D9D9D9; box-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
-.widget_player__track_time { font-size: 0.9rem; white-space: nowrap; }
-.widget_player__buttons { display: flex; justify-content: center; gap: 1.2rem; margin-top: 0.2rem; }
+.widget_player__track_time { font-size: 0.8rem; white-space: nowrap; }
+
+/* Кнопки плеера под прогрессом */
+.widget_player__buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.2rem;
+  margin-left: 0;
+}
 .widget_player__play, .widget_player__pause, .widget_player__next, .widget_player__prev {
-  position: relative; width: 2.8rem; height: 2.8rem; border-radius: 0.8rem;
+  position: relative;
+  width: 2.4rem; height: 2.4rem;
+  border-radius: 0.8rem;
   background: #1a1c24;
   box-shadow: inset 0 -0.1rem 0 rgba(0,0,0,0.5), inset 0 0.1rem 0 rgba(255,255,255,0.1), 0 0.1rem 0.2rem rgba(0,0,0,0.3);
   display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -295,7 +316,45 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
   transform: translateY(-50%); pointer-events: none;
 }
 .widget_player__play svg, .widget_player__pause svg, .widget_player__next svg, .widget_player__prev svg {
-  width: 1.4rem; height: 1.4rem; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+  width: 1.2rem; height: 1.2rem; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+}
+
+/* Регулировка громкости */
+.widget_player__volume {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+.volume-icon {
+  flex-shrink: 0;
+}
+.volume-slider {
+  flex: 1;
+  height: 0.3rem;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(65, 71, 90, 0.7);
+  border-radius: 0.3rem;
+  outline: none;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #D9D9D9;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.volume-slider::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #D9D9D9;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 /* === ПРИЛОЖЕНИЯ (2x2) === */
@@ -417,56 +476,36 @@ body.light .widget { background: rgba(211, 212, 221, 0.7); }
 
 .hidden { display: none; }
 
-/* === OFF-РЕЖИМ (ЗАМЕДЛЕННЫЕ АНИМАЦИИ) === */
-
-/* Виджеты въезжают на черный экран */
+/* === OFF-РЕЖИМ === */
 body.off-mode .widget_climate {
   animation: slideInFromLeft 3.12s ease-out forwards;
   opacity: 1;
   pointer-events: none;
 }
-
 body.off-mode .widget_apps {
   animation: slideInFromRight 3.12s ease-out forwards;
   opacity: 1;
   pointer-events: none;
 }
-
 body.off-mode .right-buttons {
   animation: slideInFromRight 3.12s ease-out 0.39s forwards;
   opacity: 1;
   pointer-events: none;
 }
-
 body.off-mode .widget_player {
   animation: slideInFromLeft 3.12s ease-out 0.78s forwards;
   opacity: 1;
   pointer-events: none;
 }
-
 @keyframes slideInFromLeft {
-  0% {
-    opacity: 0;
-    transform: translateX(-150px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  0% { opacity: 0; transform: translateX(-150px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes slideInFromRight {
-  0% {
-    opacity: 0;
-    transform: translateX(150px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  0% { opacity: 0; transform: translateX(150px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
 
-/* Часы — поднимаются от своего обычного места (восход луны) */
 body.off-mode .widget_time {
   position: fixed;
   top: 35%;
@@ -484,19 +523,15 @@ body.off-mode .widget_time {
   cursor: pointer;
   animation: moonRise 3.12s ease-out forwards;
 }
-
 @keyframes moonRise {
   0% {
     top: calc(100% - var(--dashboard-bottom) - var(--widget-size) / 2);
-    left: calc(2rem + var(--widget-size) / 2);
+    left: calc(var(--dashboard-left-right) + var(--widget-size) / 2);
     transform: translate(-50%, -50%) scale(0.8);
     opacity: 0;
     filter: blur(8px);
   }
-  40% {
-    opacity: 0.8;
-    filter: blur(3px);
-  }
+  40% { opacity: 0.8; filter: blur(3px); }
   100% {
     top: 35%;
     left: 50%;
@@ -506,11 +541,7 @@ body.off-mode .widget_time {
   }
 }
 
-/* Цифры часов в off-режиме */
-body.off-mode .flip-clock {
-  gap: clamp(0.2rem, 1vw, 0.5rem);
-}
-
+body.off-mode .flip-clock { gap: clamp(0.2rem, 1vw, 0.5rem); }
 body.off-mode .flip-digit {
   background: rgba(20, 20, 30, 0.4);
   color: rgba(220, 220, 220, 0.7);
@@ -523,28 +554,21 @@ body.off-mode .flip-digit {
   backdrop-filter: blur(2px);
   transition: all 0.5s ease;
 }
-
 body.off-mode .flip-digit::after {
   height: 3px;
   background: rgba(0,0,0,0.5);
   box-shadow: 0 0 8px rgba(0,0,0,0.7);
 }
-
 body.off-mode .flip-separator {
   font-size: clamp(4rem, 12vw, 15rem);
   color: rgba(200,200,200,0.5);
 }
-
 body.off-mode .widget_time__date,
-body.off-mode .widget_time__weekday {
-  display: none;
-}
+body.off-mode .widget_time__weekday { display: none; }
 
-/* Свечение часов (glowing) */
 body.off-mode .widget_time.glowing .flip-digit {
   animation: timeGlow 3s infinite alternate;
 }
-
 @keyframes timeGlow {
   from {
     text-shadow: 0 0 15px rgba(200,200,200,0.3);
@@ -556,7 +580,6 @@ body.off-mode .widget_time.glowing .flip-digit {
   }
 }
 
-/* Обратный переход — виджеты плавно возвращаются */
 body:not(.off-mode) .widget_climate,
 body:not(.off-mode) .widget_apps,
 body:not(.off-mode) .right-buttons,
@@ -567,13 +590,11 @@ body:not(.off-mode) .widget_player {
   animation: none;
 }
 
-/* Часы — плавно уходят в слот (заход луны) с появлением фона слота */
 body:not(.off-mode) .widget_time {
   animation: moonSet 3.12s ease-out forwards;
   pointer-events: auto;
   cursor: pointer;
 }
-
 @keyframes moonSet {
   0% {
     position: fixed;
@@ -592,7 +613,7 @@ body:not(.off-mode) .widget_time {
   50% {
     position: fixed;
     top: calc(100% - var(--dashboard-bottom) - var(--widget-size) / 2);
-    left: calc(2rem + var(--widget-size) / 2);
+    left: calc(var(--dashboard-left-right) + var(--widget-size) / 2);
     transform: translate(-50%, -50%) scale(0.8);
     width: auto;
     height: auto;
@@ -618,8 +639,6 @@ body:not(.off-mode) .widget_time {
     filter: blur(0);
   }
 }
-
-/* После завершения анимации — слот остаётся видимым */
 body:not(.off-mode) .widget_time {
   position: relative;
   width: var(--widget-size);
@@ -629,30 +648,21 @@ body:not(.off-mode) .widget_time {
   border-radius: 1.5rem;
   padding: 0.8rem;
 }
-
-/* Цифры возвращаются к обычному размеру */
 body:not(.off-mode) .flip-digit {
   font-size: 2.8rem;
   background: #1a1c24;
   color: #e0e0e0;
 }
-
-body:not(.off-mode) .flip-separator {
-  font-size: 2.8rem;
-}
-
+body:not(.off-mode) .flip-separator { font-size: 2.8rem; }
 body:not(.off-mode) .widget_time__date,
-body:not(.off-mode) .widget_time__weekday {
-  display: block;
-}
+body:not(.off-mode) .widget_time__weekday { display: block; }
 
-/* Плавное исчезновение затемнения при возврате */
 body:not(.off-mode)::before {
   opacity: 0;
   transition: opacity 3.12s ease;
 }
 
-/* === RIPPLE ЭФФЕКТ ДЛЯ ДЛИННОГО НАЖАТИЯ === */
+/* === RIPPLE ЭФФЕКТ === */
 .ripple {
   position: absolute;
   border-radius: 50%;
@@ -661,9 +671,7 @@ body:not(.off-mode)::before {
   animation: ripple-animation 0.5s ease-out;
   pointer-events: none;
 }
-@keyframes ripple-animation {
-  to { transform: scale(4); opacity: 0; }
-}
+@keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
 
 /* === КАСТОМНЫЕ ОБОИ В САЙДБАРЕ === */
 .custom-wallpaper-section {
@@ -674,7 +682,6 @@ body:not(.off-mode)::before {
   flex-direction: column;
   gap: 10px;
 }
-
 .custom-wallpaper-btn {
   display: flex;
   align-items: center;
@@ -687,18 +694,9 @@ body:not(.off-mode)::before {
   color: white;
   font-size: 0.9rem;
 }
+.custom-wallpaper-btn:hover { background: rgba(255,255,255,0.2); }
+.custom-wallpaper-btn svg { width: 20px; height: 20px; fill: white; }
 
-.custom-wallpaper-btn:hover {
-  background: rgba(255,255,255,0.2);
-}
-
-.custom-wallpaper-btn svg {
-  width: 20px;
-  height: 20px;
-  fill: white;
-}
-
-/* Контейнер для видеофона */
 #video-background {
   position: fixed;
   top: 0; left: 0;
@@ -708,11 +706,5 @@ body:not(.off-mode)::before {
   pointer-events: none;
   display: none;
 }
-
-body.has-video-background #video-background {
-  display: block;
-}
-
-body.has-video-background {
-  background: black;
-}
+body.has-video-background #video-background { display: block; }
+body.has-video-background { background: black; }

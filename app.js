@@ -1,7 +1,8 @@
 /**********************************************
  * My Black Window - Dashboard
- * Версия 3.9.9
- * - Убраны кнопки загрузки своих фото и видео
+ * Версия 4.1
+ * - Климат 2x3
+ * - Регулировка громкости в плеере
  **********************************************/
 
 const TOKEN = window.ANDROID_TOKEN || "SECURE_TOKEN_2025";
@@ -33,6 +34,7 @@ const App = (function() {
     runApp(pkg) { this.call('runApp', TOKEN, pkg); },
     requestClimateState() { this.call('requestClimateState', TOKEN); },
     requestClimateStateForCommand(cmd) { this.call('requestClimateStateForCommand', TOKEN, cmd); },
+    setVolume(volume) { this.call('setvol', TOKEN, volume); },
     onJsReady() { this.call('onJsReady', TOKEN); },
     onClose() { this.call('onClose', TOKEN); },
     onSettings() { this.call('onSettings', TOKEN); }
@@ -100,7 +102,7 @@ const App = (function() {
 
   const modules = {};
 
-  // --- Обои (watchdog для видео) ---
+  // --- Обои ---
   modules.wallpaper = (function() {
     const staticWallpapers = Array.from(document.querySelectorAll('.wallpaper-item')).map(item => item.dataset.src);
     let customWallpaperIndex = 0;
@@ -126,13 +128,7 @@ const App = (function() {
 
     let videoWatchdogInterval = null;
 
-    function stopWatchdog() {
-      if (videoWatchdogInterval) {
-        clearInterval(videoWatchdogInterval);
-        videoWatchdogInterval = null;
-      }
-    }
-
+    function stopWatchdog() { if (videoWatchdogInterval) { clearInterval(videoWatchdogInterval); videoWatchdogInterval = null; } }
     function startWatchdog() {
       stopWatchdog();
       videoWatchdogInterval = setInterval(() => {
@@ -142,13 +138,11 @@ const App = (function() {
         }
       }, 1000);
     }
-
     function setupVideoLoop() {
       videoElement.removeEventListener('ended', handleVideoEnded);
       videoElement.addEventListener('ended', handleVideoEnded);
       startWatchdog();
     }
-
     function handleVideoEnded() {
       log('Video ended, restarting');
       videoElement.currentTime = 0;
@@ -209,7 +203,6 @@ const App = (function() {
       storage.save('wallpaperMode', 'auto');
       storage.save('wallpaperImage', base64);
     }
-
     function clearVideoBackground() {
       stopWatchdog();
       if (videoElement) {
@@ -220,14 +213,10 @@ const App = (function() {
       }
       document.body.classList.remove('has-video-background');
     }
-
     function setVideoBackground(fileOrUrl) {
       let url;
-      if (typeof fileOrUrl === 'string') {
-        url = fileOrUrl;
-      } else {
-        url = URL.createObjectURL(fileOrUrl);
-      }
+      if (typeof fileOrUrl === 'string') url = fileOrUrl;
+      else url = URL.createObjectURL(fileOrUrl);
       clearVideoBackground();
       videoElement.src = url;
       videoElement.style.display = 'block';
@@ -240,7 +229,6 @@ const App = (function() {
       storage.save('wallpaperMode', 'video');
       storage.save('wallpaperVideo', url);
     }
-
     async function setAuto(showLoader = true) {
       clearVideoBackground();
       const w = window.innerWidth, h = window.innerHeight;
@@ -276,7 +264,6 @@ const App = (function() {
         } catch { setCustomByIndex(0); }
       } finally { if (showLoader) loader.hide(); }
     }
-
     function setOff() {
       clearVideoBackground();
       document.body.style.backgroundImage = "none";
@@ -285,7 +272,6 @@ const App = (function() {
       const tw = document.querySelector('.widget_time');
       if (tw) { tw.classList.add('glowing'); setTimeout(() => tw.classList.remove('glowing'), 5000); }
     }
-
     function setCustomByIndex(index) {
       clearVideoBackground();
       if (!staticWallpapers.length) return;
@@ -297,14 +283,12 @@ const App = (function() {
       storage.save('customWallpaperIndex', index);
       customWallpaperIndex = index;
     }
-
     function nextCustom() {
       if (storage.load('wallpaperMode') !== 'custom') return;
       let idx = storage.load('customWallpaperIndex') || 0;
       if (idx === -1) return;
       setCustomByIndex((idx + 1) % staticWallpapers.length);
     }
-
     function restore() {
       const mode = storage.load('wallpaperMode');
       if (mode === 'custom') {
@@ -329,14 +313,9 @@ const App = (function() {
           document.body.classList.add('has-video-background');
           document.body.style.backgroundImage = 'none';
           document.body.classList.remove('off-mode');
-        } else {
-          setCustomByIndex(0);
-        }
-      } else {
-        setTimeout(() => setCustomByIndex(0), 100);
-      }
+        } else { setCustomByIndex(0); }
+      } else { setTimeout(() => setCustomByIndex(0), 100); }
     }
-
     function toggleOffMode() {
       if (document.body.classList.contains('off-mode')) {
         const savedMode = storage.load('wallpaperMode') || 'custom';
@@ -355,30 +334,20 @@ const App = (function() {
           }
         }
         document.body.classList.remove('off-mode');
-      } else {
-        setOff();
-      }
+      } else { setOff(); }
     }
-
     function toggleAutoMode() {
       const currentMode = storage.load('wallpaperMode') || 'custom';
       if (currentMode === 'auto') {
         const idx = storage.load('customWallpaperIndex') || 0;
         setCustomByIndex(idx);
-      } else {
-        setAuto(true);
-      }
+      } else { setAuto(true); }
       const btn = document.getElementById('btnWallpaper');
       if (btn) btn.classList.toggle('active', storage.load('wallpaperMode') === 'auto');
     }
-
     function initAutoMode() { if (storage.load('wallpaperMode') === 'auto') preloadNextWallpaper(); }
 
-    return { 
-      setOff, setAuto, setCustomByIndex, nextCustom, restore, 
-      toggleOffMode, toggleAutoMode, initAutoMode,
-      setVideoBackground
-    };
+    return { setOff, setAuto, setCustomByIndex, nextCustom, restore, toggleOffMode, toggleAutoMode, initAutoMode, setVideoBackground };
   })();
 
   // --- Часы ---
@@ -458,12 +427,7 @@ const App = (function() {
     const saveBtn = document.getElementById('saveBrandEdit');
     const cancelBtn = document.getElementById('cancelBrandEdit');
 
-    function showModal() {
-      input.value = brandEl.textContent;
-      modal.classList.add('open');
-      input.focus();
-    }
-
+    function showModal() { input.value = brandEl.textContent; modal.classList.add('open'); input.focus(); }
     function hideModal() {
       modal.classList.remove('open');
       input.blur();
@@ -482,16 +446,11 @@ const App = (function() {
       brandEl.style.userSelect = 'none';
       void brandEl.offsetHeight;
     }
-
     function saveBrand() {
       const newText = input.value.trim();
-      if (newText) {
-        brandEl.textContent = newText;
-        storage.save('brandText', newText);
-      }
+      if (newText) { brandEl.textContent = newText; storage.save('brandText', newText); }
       hideModal();
     }
-
     function init() {
       makeLongPressable(brandEl, showModal, { delay: 700 });
       saveBtn.addEventListener('click', saveBrand);
@@ -500,11 +459,10 @@ const App = (function() {
       const savedText = storage.load('brandText');
       if (savedText) brandEl.textContent = savedText;
     }
-
     return { init };
   })();
 
-  // --- Плеер ---
+  // --- Плеер (с регулировкой громкости) ---
   modules.player = (function() {
     const titleEl = document.querySelector(".widget_player__title");
     const artistEl = document.querySelector(".widget_player__artist");
@@ -513,6 +471,9 @@ const App = (function() {
     const timeSpans = document.querySelectorAll(".widget_player__track_time span");
     const playBtn = document.getElementById("player__play");
     const pauseBtn = document.getElementById("player__pause");
+    const volumeSlider = document.getElementById("volumeSlider");
+
+    let volumeChangeTimer = null;
 
     function updateMusicInfo(data) {
       if (typeof data === "string") data = JSON.parse(data);
@@ -521,9 +482,7 @@ const App = (function() {
       if (imgEl && data.SongAlbumPicture) imgEl.src = "data:image/png;base64," + data.SongAlbumPicture;
       const pos = parseFloat(data.Trpos||0), dur = parseFloat(data.Trdur||1);
       let percent = (pos / dur) * 100;
-      if (dur === Infinity || dur > 86400000) {
-        percent = 0;
-      }
+      if (dur === Infinity || dur > 86400000) percent = 0;
       if (progressEl) progressEl.style.width = Math.min(percent, 100) + "%";
       const format = t => { const m = Math.floor(t/60000), s = Math.floor((t%60000)/1000); return m+":"+String(s).padStart(2,'0'); };
       if (timeSpans.length >= 2) {
@@ -535,16 +494,30 @@ const App = (function() {
       if (pauseBtn) pauseBtn.style.display = playing ? "flex" : "none";
     }
 
+    function handleVolumeChange() {
+      const volume = parseInt(volumeSlider.value, 10);
+      if (volumeChangeTimer) clearTimeout(volumeChangeTimer);
+      volumeChangeTimer = setTimeout(() => {
+        android.setVolume(volume);
+        log(`Volume set to ${volume}%`);
+      }, 100);
+    }
+
     function init() {
       document.getElementById("player__prev")?.addEventListener("click", ()=> android.runEnum("MEDIA_BLACK"));
       document.getElementById("player__next")?.addEventListener("click", ()=> android.runEnum("MEDIA_NEXT"));
       playBtn?.addEventListener("click", ()=>{ android.runEnum("MEDIA_PLAY"); playBtn.style.display="none"; pauseBtn.style.display="flex"; });
       pauseBtn?.addEventListener("click", ()=>{ android.runEnum("MEDIA_PAUSE"); pauseBtn.style.display="none"; playBtn.style.display="flex"; });
+
+      if (volumeSlider) {
+        volumeSlider.addEventListener('input', handleVolumeChange);
+      }
     }
+
     return { updateMusicInfo, init };
   })();
 
-  // --- Климат (исправлены команды off для лобового и заднего стекла) ---
+  // --- Климат (2x3, 6 слотов) ---
   modules.climate = (function() {
     let climateCommands = [], climateState = {};
     const fallback = [
@@ -591,13 +564,12 @@ const App = (function() {
     }
     function updateAll(){ document.querySelectorAll('.climate_slot').forEach(renderSlot); }
     function turnOffAll(){
-      for(let i=1;i<=4;i++){ 
+      for(let i=1;i<=6;i++){ 
         const cmd=storage.load(`climate_slot_${i}`); 
         if(!cmd) continue; 
         const c=climateCommands.find(x=>x.cmd===cmd); 
         if(c){ 
           const offCmd = getOff(c);
-          log(`Turning off slot ${i}: ${offCmd}`);
           android.runEnum(offCmd); 
           climateState[cmd]=0; 
         } 
@@ -690,12 +662,8 @@ const App = (function() {
     document.getElementById("btnSettings")?.addEventListener("click", ()=> android.onSettings());
 
     const btnWallpaper = document.getElementById("btnWallpaper");
-    btnWallpaper?.addEventListener("click", () => {
-      modules.wallpaper.toggleAutoMode();
-    });
-    if (storage.load("wallpaperMode") === "auto") {
-      btnWallpaper?.classList.add("active");
-    }
+    btnWallpaper?.addEventListener("click", () => { modules.wallpaper.toggleAutoMode(); });
+    if (storage.load("wallpaperMode") === "auto") { btnWallpaper?.classList.add("active"); }
 
     document.body.addEventListener("click", e => {
       if (e.target === document.body) {
@@ -709,10 +677,7 @@ const App = (function() {
     document.getElementById("openSidebar")?.addEventListener("click", ()=>sidebar.classList.add("open"));
     document.getElementById("closeSidebar")?.addEventListener("click", ()=>sidebar.classList.remove("open"));
     document.querySelectorAll(".wallpaper-item").forEach((it,i)=>{
-      it.addEventListener("click", ()=>{
-        modules.wallpaper.setCustomByIndex(i);
-        sidebar.classList.remove("open");
-      });
+      it.addEventListener("click", ()=>{ modules.wallpaper.setCustomByIndex(i); sidebar.classList.remove("open"); });
     });
 
     document.getElementById('presetVideoKamin')?.addEventListener('click', () => {
@@ -720,9 +685,7 @@ const App = (function() {
       sidebar.classList.remove('open');
     });
 
-    document.querySelector('.widget_time')?.addEventListener('click', () => {
-      modules.wallpaper.toggleOffMode();
-    });
+    document.querySelector('.widget_time')?.addEventListener('click', () => { modules.wallpaper.toggleOffMode(); });
 
     document.addEventListener("contextmenu", e=>e.preventDefault());
     android.onJsReady();
