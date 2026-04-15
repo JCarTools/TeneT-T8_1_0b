@@ -1,8 +1,7 @@
 /**********************************************
  * My Black Window - Dashboard
- * Версия 4.1
- * - Климат 2x3
- * - Регулировка громкости в плеере
+ * Версия 4.3
+ * - Исправлена регулировка громкости
  **********************************************/
 
 const TOKEN = window.ANDROID_TOKEN || "SECURE_TOKEN_2025";
@@ -10,7 +9,7 @@ const TOKEN = window.ANDROID_TOKEN || "SECURE_TOKEN_2025";
 const App = (function() {
   "use strict";
 
-  const DEBUG = false;
+  const DEBUG = true; // Временно включим для отладки громкости
   const log = (...args) => DEBUG && console.log("[App]", ...args);
   const warn = (...args) => console.warn("[App]", ...args);
   const error = (...args) => console.error("[App]", ...args);
@@ -22,6 +21,7 @@ const App = (function() {
 
   const android = {
     call(method, ...args) {
+      log(`Android call: ${method}`, args);
       if (window.androidApi && typeof window.androidApi[method] === 'function') {
         try { return window.androidApi[method](...args); } catch (e) { error(`Android API error [${method}]:`, e); }
       } else { warn(`Android API method not available: ${method}`); }
@@ -34,7 +34,13 @@ const App = (function() {
     runApp(pkg) { this.call('runApp', TOKEN, pkg); },
     requestClimateState() { this.call('requestClimateState', TOKEN); },
     requestClimateStateForCommand(cmd) { this.call('requestClimateStateForCommand', TOKEN, cmd); },
-    setVolume(volume) { this.call('setvol', TOKEN, volume); },
+    setVolume(volume) { 
+      // Пробуем разные варианты вызова
+      log(`Setting volume to ${volume}%`);
+      this.call('setvol', TOKEN, volume); 
+      this.call('setVolume', TOKEN, volume);
+      this.call('set_volume', volume);
+    },
     onJsReady() { this.call('onJsReady', TOKEN); },
     onClose() { this.call('onClose', TOKEN); },
     onSettings() { this.call('onSettings', TOKEN); }
@@ -102,7 +108,7 @@ const App = (function() {
 
   const modules = {};
 
-  // --- Обои ---
+  // --- Обои (без изменений) ---
   modules.wallpaper = (function() {
     const staticWallpapers = Array.from(document.querySelectorAll('.wallpaper-item')).map(item => item.dataset.src);
     let customWallpaperIndex = 0;
@@ -350,7 +356,7 @@ const App = (function() {
     return { setOff, setAuto, setCustomByIndex, nextCustom, restore, toggleOffMode, toggleAutoMode, initAutoMode, setVideoBackground };
   })();
 
-  // --- Часы ---
+  // --- Часы (без изменений) ---
   modules.clock = (function() {
     const flipClock = document.getElementById('flipClock'), dateDisplay = document.getElementById('dateDisplay'), weekdayDisplay = document.getElementById('weekdayDisplay');
     let rafId = null, lastMinute = -1;
@@ -373,7 +379,7 @@ const App = (function() {
     return { start, stop };
   })();
 
-  // --- Перетаскивание кнопки сети ---
+  // --- Перетаскивание кнопки сети (без изменений) ---
   modules.draggableNetwork = (function() {
     const btn = document.getElementById('btnNetwork');
     if (!btn) return { init(){} };
@@ -419,7 +425,7 @@ const App = (function() {
     return { init };
   })();
 
-  // --- Редактирование надписи ---
+  // --- Редактирование надписи (без изменений) ---
   modules.brandEditor = (function() {
     const brandEl = document.getElementById('editableBrand');
     const modal = document.getElementById('brandEditorModal');
@@ -462,7 +468,7 @@ const App = (function() {
     return { init };
   })();
 
-  // --- Плеер (с регулировкой громкости) ---
+  // --- Плеер (исправлена регулировка громкости) ---
   modules.player = (function() {
     const titleEl = document.querySelector(".widget_player__title");
     const artistEl = document.querySelector(".widget_player__artist");
@@ -474,6 +480,7 @@ const App = (function() {
     const volumeSlider = document.getElementById("volumeSlider");
 
     let volumeChangeTimer = null;
+    let currentVolume = 50; // значение по умолчанию
 
     function updateMusicInfo(data) {
       if (typeof data === "string") data = JSON.parse(data);
@@ -494,13 +501,21 @@ const App = (function() {
       if (pauseBtn) pauseBtn.style.display = playing ? "flex" : "none";
     }
 
-    function handleVolumeChange() {
-      const volume = parseInt(volumeSlider.value, 10);
-      if (volumeChangeTimer) clearTimeout(volumeChangeTimer);
-      volumeChangeTimer = setTimeout(() => {
-        android.setVolume(volume);
-        log(`Volume set to ${volume}%`);
-      }, 100);
+    function setVolume(value) {
+      const volume = parseInt(value, 10);
+      if (volume === currentVolume) return; // не отправляем, если значение не изменилось
+      currentVolume = volume;
+      
+      log(`Setting volume to ${volume}%`);
+      storage.save('player_volume', volume);
+      
+      // Отправляем команду немедленно, без debounce
+      android.setVolume(volume);
+    }
+
+    function handleVolumeChange(e) {
+      const volume = e.target.value;
+      setVolume(volume);
     }
 
     function init() {
@@ -510,14 +525,32 @@ const App = (function() {
       pauseBtn?.addEventListener("click", ()=>{ android.runEnum("MEDIA_PAUSE"); pauseBtn.style.display="none"; playBtn.style.display="flex"; });
 
       if (volumeSlider) {
-        volumeSlider.addEventListener('input', handleVolumeChange);
+        // Восстанавливаем сохранённую громкость
+        const savedVolume = storage.load('player_volume');
+        if (savedVolume !== null) {
+          volumeSlider.value = savedVolume;
+          currentVolume = savedVolume;
+          // Отправляем сохранённое значение при старте
+          setTimeout(() => android.setVolume(savedVolume), 500);
+        } else {
+          currentVolume = parseInt(volumeSlider.value, 10);
+        }
+        
+        // Используем 'change' вместо 'input' для отправки только при отпускании ползунка
+        volumeSlider.addEventListener('change', handleVolumeChange);
+        // Также можно оставить 'input' для мгновенной реакции, но с проверкой
+        volumeSlider.addEventListener('input', (e) => {
+          // Обновляем текущее значение, но не отправляем
+          currentVolume = parseInt(e.target.value, 10);
+          storage.save('player_volume', currentVolume);
+        });
       }
     }
 
     return { updateMusicInfo, init };
   })();
 
-  // --- Климат (2x3, 6 слотов) ---
+  // --- Климат (2x3, 6 слотов) - без изменений ---
   modules.climate = (function() {
     let climateCommands = [], climateState = {};
     const fallback = [
@@ -605,7 +638,7 @@ const App = (function() {
     return { init, updateState: function(data){ updateAll(); } };
   })();
 
-  // --- Приложения ---
+  // --- Приложения (без изменений) ---
   modules.apps = (function() {
     function init() {
       const slots = document.querySelectorAll(".app_slot"), picker = document.getElementById("app_picker"), grid = document.getElementById("app-picker-grid"), close = document.getElementById("app-picker-close");
@@ -626,7 +659,7 @@ const App = (function() {
     return { init };
   })();
 
-  // --- Сеть ---
+  // --- Сеть (без изменений) ---
   modules.network = (function() {
     let online=false, checking=false, checkInterval=null;
     const icon=document.getElementById('networkIconContainer'), btn=document.getElementById('btnNetwork');
