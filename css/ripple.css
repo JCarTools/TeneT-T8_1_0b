@@ -1,10 +1,62 @@
-/* === RIPPLE ЭФФЕКТ === */
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.3);
-  transform: scale(0);
-  animation: ripple-animation 0.5s ease-out;
-  pointer-events: none;
+/* === OEM TOUCH FEEDBACK ANIMATIONS === */
+@keyframes oemTouchRebound {
+  0% { transform: scale(0.958); }
+  55% { transform: scale(1.018); }
+  100% { transform: scale(1); }
 }
-@keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+@keyframes oemIconRebound {
+  0% { transform: scale(0.92); }
+  55% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes oemPulseFade {
+  0% { opacity: 0.95; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.18); }
+}
+@keyframes oemTouchRipple {
+  0% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.25); }
+  32% { opacity: 0.34; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); }
+}
+
+/* Ripple элемент (будет создаваться JS) */
+.touch-ripple {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 226, 255, 0.32) 0%, rgba(212, 226, 255, 0.11) 48%, transparent 74%);
+  transform: translate(-50%, -50%) scale(0.35);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.is-pressed .touch-ripple {
+  animation: oemTouchRipple 420ms ease-out forwards;
+}
+body.light .touch-ripple {
+  background: radial-gradient(circle, rgba(123, 149, 201, 0.26) 0%, rgba(123, 149, 201, 0.1) 48%, transparent 74%);
+}
+
+/* Псевдоэлемент для подсветки при нажатии (уже в виджетах) */
+.widget_player__btn.is-pressed::after,
+.app_slot.is-pressed::after,
+.climate_slot.is-pressed::after,
+.climate-off-all.is-pressed::after,
+#btnNetwork.is-pressed::after,
+#btnClose.is-pressed::after,
+.close-btn.is-pressed::after,
+.drawer-close.is-pressed::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.widget_player__btn.is-releasing::after,
+.app_slot.is-releasing::after,
+.climate_slot.is-releasing::after,
+.climate-off-all.is-releasing::after,
+#btnNetwork.is-releasing::after,
+#btnClose.is-releasing::after,
+.close-btn.is-releasing::after,
+.drawer-close.is-releasing::after {
+  animation: oemPulseFade 240ms ease-out;
+}

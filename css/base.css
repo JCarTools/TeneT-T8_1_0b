@@ -15,12 +15,21 @@
   --base-font-size: 18px;
   --widget-size: 13.5rem;
   --widget-gap: 0.375rem;
-  --dashboard-bottom: 2.5rem;
+  --dashboard-bottom: 2.3rem;
   --dashboard-left-right: 1rem;
   --bg-widget: rgba(29, 27, 32, 0.7);
   --bg-slot: rgba(42, 39, 48, 0.7);
   --color-text: #D9D9D9;
+  /* OEM additions */
+  --oem-panel: linear-gradient(180deg, rgba(20, 23, 30, 0.82), rgba(12, 14, 20, 0.66));
+  --oem-panel-light: linear-gradient(180deg, rgba(251, 252, 255, 0.78), rgba(234, 238, 246, 0.56));
+  --oem-border: rgba(255,255,255,0.075);
+  --oem-border-soft: rgba(255,255,255,0.05);
+  --oem-inner: rgba(255,255,255,0.05);
+  --oem-shadow: 0 18px 38px rgba(0,0,0,0.22);
+  --oem-shadow-soft: 0 10px 22px rgba(0,0,0,0.16);
 }
+
 @media (min-width: 1600px) { :root { --base-font-size: 20px; } }
 @media (max-width: 1200px) { :root { --base-font-size: 15px; } }
 @media (max-width: 900px)  { :root { --base-font-size: 13px; } }
@@ -28,7 +37,7 @@
 html { font-size: var(--base-font-size); }
 
 * {
-  font-family: 'MyComicSans', 'Comic Sans MS', cursive !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Inter, Arial, sans-serif !important;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -42,8 +51,19 @@ body {
   transition: background-color 0.8s ease;
   height: 100vh;
   position: relative;
+  background-image:
+    radial-gradient(circle at 50% 100%, rgba(122, 146, 190, 0.08), transparent 34%),
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,0.05), transparent 28%),
+    linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.18));
 }
-body.light { background: #DFE0E9; color: #1C1119; }
+body.light {
+  background: #DFE0E9;
+  color: #1C1119;
+  background-image:
+    radial-gradient(circle at 50% 100%, rgba(114, 140, 188, 0.08), transparent 34%),
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,0.55), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(219,225,236,0.18));
+}
 
 body::before {
   content: '';
@@ -84,43 +104,62 @@ body::before {
 /* === ФИКСИРОВАННЫЕ ЭЛЕМЕНТЫ === */
 #btnNetwork {
   position: fixed; top: 1rem; right: 1rem;
-  width: 3rem; height: 3rem;
-  background: rgba(29, 27, 32, 0.6);
-  backdrop-filter: blur(8px);
-  border-radius: 0.8rem;
+  width: 3.2rem; height: 3.2rem;
+  background: var(--oem-panel);
+  backdrop-filter: blur(14px);
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 24px rgba(0,0,0,0.18);
   display: flex; align-items: center; justify-content: center;
   z-index: 500;
   cursor: grab;
   touch-action: none; user-select: none;
   transition: opacity 1.04s ease;
+  overflow: hidden;
 }
+body.off-mode #btnNetwork { opacity: 0; pointer-events: none; }
 #btnNetwork:active { cursor: grabbing; }
-.network-svg { width: 2rem; height: 2rem; pointer-events: none; }
+#btnNetwork:hover {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 28px rgba(0,0,0,0.2);
+}
+.network-svg { width: 1.6rem; height: 1.6rem; position: relative; z-index: 1; }
 
 #btnClose {
-  position: fixed; bottom: 0.5rem; right: 0.5rem;
-  width: 2rem; height: 2rem;
-  background: rgba(42, 39, 48, 0.7);
-  backdrop-filter: blur(8px);
-  border-radius: 0.8rem;
+  position: fixed; bottom: 0.8rem; right: 0.9rem;
+  width: 2.35rem; height: 2.35rem;
+  background: var(--oem-panel);
+  backdrop-filter: blur(14px);
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 24px rgba(0,0,0,0.18);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; z-index: 600;
   transition: opacity 1.04s ease;
+  color: rgba(233, 238, 245, 0.86);
+  overflow: hidden;
 }
-#btnClose svg { width: 0.8rem; height: 0.8rem; }
-#btnClose:hover { background: rgba(58, 54, 64, 0.9); }
+body.off-mode #btnClose { opacity: 0; pointer-events: none; }
+#btnClose svg { width: 1rem; height: 1rem; position: relative; z-index: 1; }
+#btnClose:hover {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 28px rgba(0,0,0,0.2);
+}
 
 .brand-footer {
-  position: fixed; bottom: 0.3rem; left: 0; right: 0;
+  position: fixed; bottom: 0.7rem; left: 0; right: 0;
   text-align: center;
-  color: rgba(255, 255, 255, 0.25);
-  font-size: 1.8rem; font-weight: 300; letter-spacing: 2px;
+  color: rgba(227, 231, 239, 0.22);
+  font-size: 1.02rem; font-weight: 430; letter-spacing: 0.2em;
+  text-transform: uppercase;
   pointer-events: auto;
   z-index: 400;
   cursor: pointer;
   user-select: none;
-  transition: opacity 1.04s ease;
+  transition: opacity 1.04s ease, color 0.2s;
 }
+body.light .brand-footer { color: rgba(57, 66, 88, 0.22); }
+body.off-mode .brand-footer { opacity: 0; pointer-events: none; }
 .brand-footer:active { color: rgba(255, 255, 255, 0.5); }
 
 /* === ОСНОВНАЯ ПАНЕЛЬ === */
@@ -134,4 +173,29 @@ body::before {
   align-items: stretch;
   z-index: 10;
   transition: all 0.5s;
+}
+
+/* OEM touch feedback system */
+.system-fab__halo {
+  position: absolute;
+  inset: 0.34rem;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 26%, rgba(194, 214, 255, 0.18), rgba(255,255,255,0.03) 48%, transparent 76%);
+  pointer-events: none;
+}
+
+/* Shared interactive states (will be augmented by JS) */
+.widget_player__btn,
+.app_slot,
+.climate_slot,
+.climate-off-all,
+#btnNetwork,
+#btnClose,
+.close-btn,
+.drawer-close {
+  position: relative;
+  overflow: hidden;
+  transform-origin: center center;
+  will-change: transform, box-shadow, filter;
+  -webkit-tap-highlight-color: transparent;
 }

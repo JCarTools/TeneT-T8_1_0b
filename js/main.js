@@ -47,6 +47,9 @@ function initUI() {
 
   document.querySelector('.widget_time')?.addEventListener('click', () => { modules.wallpaper.toggleOffMode(); });
 
+  // Включаем OEM-эффекты для всех интерактивных элементов
+  attachOemTouchFeedback(".widget_buttons, #btnNetwork, #btnClose, .widget_player__btn, .close-btn, .drawer-close, .climate-off-all, .app_slot, .climate_slot");
+
   document.addEventListener("contextmenu", e=>e.preventDefault());
   android.onJsReady();
 }

@@ -93,6 +93,68 @@ function makeLongPressable(element, callback, options = {}) {
   element.addEventListener('mouseleave', cancel);
 }
 
+// OEM Touch Feedback
+function attachOemTouchFeedback(selector) {
+  const elements = typeof selector === 'string' ? document.querySelectorAll(selector) : selector;
+  elements?.forEach?.((element) => {
+    if (!element || element.dataset.oemTouchBound === '1') return;
+    element.dataset.oemTouchBound = '1';
+
+    let releaseTimer = null;
+    let pointerActive = false;
+
+    const clearRelease = () => {
+      if (releaseTimer) {
+        clearTimeout(releaseTimer);
+        releaseTimer = null;
+      }
+    };
+
+    const ensureRipple = (event) => {
+      let ripple = element.querySelector('.touch-ripple');
+      if (!ripple) {
+        ripple = document.createElement('span');
+        ripple.className = 'touch-ripple';
+        element.appendChild(ripple);
+      }
+      const rect = element.getBoundingClientRect();
+      const point = event?.touches?.[0] || event;
+      const x = point?.clientX ?? (rect.left + rect.width / 2);
+      const y = point?.clientY ?? (rect.top + rect.height / 2);
+      ripple.style.left = `${x - rect.left}px`;
+      ripple.style.top = `${y - rect.top}px`;
+      ripple.getAnimations?.().forEach(anim => anim.cancel());
+      ripple.style.animation = 'none';
+      ripple.offsetHeight;
+    };
+
+    const press = (event) => {
+      pointerActive = true;
+      clearRelease();
+      element.classList.remove('is-releasing');
+      ensureRipple(event);
+      element.classList.add('is-pressed');
+    };
+
+    const release = () => {
+      if (!pointerActive && !element.classList.contains('is-pressed')) return;
+      pointerActive = false;
+      element.classList.remove('is-pressed');
+      element.classList.add('is-releasing');
+      clearRelease();
+      releaseTimer = setTimeout(() => {
+        element.classList.remove('is-releasing');
+      }, 240);
+    };
+
+    element.addEventListener('pointerdown', press, { passive: true });
+    element.addEventListener('pointerup', release, { passive: true });
+    element.addEventListener('pointercancel', release, { passive: true });
+    element.addEventListener('pointerleave', release, { passive: true });
+    element.addEventListener('blur', release, true);
+  });
+}
+
 // Глобальный лоадер
 const loader = {
   show() { document.getElementById('global-loader')?.classList.remove('hidden'); },
